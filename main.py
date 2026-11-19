@@ -289,9 +289,26 @@ def build():
         col, row = i % 2, i // 2
         draw_panel(cv, mx + col * (pw + gap), my + row * (ph + gap),
                    pw, ph, kicker, accent, painter, headline, facts)
-    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "entry.png")
+    out = output_path()
     cv.save_png(out)
     print("wrote", out)
+
+
+def output_path():
+    """Where the poster goes.
+
+    The make.fun grader mounts the repository read-only and expects the
+    image in its output directory: MAKEFUN_OUTPUT_DIR when set, else
+    /output when that exists and is writable.  For a plain local run,
+    fall back to an entry.png beside this file.
+    """
+    env_dir = os.environ.get("MAKEFUN_OUTPUT_DIR")
+    if env_dir:
+        os.makedirs(env_dir, exist_ok=True)
+        return os.path.join(env_dir, "entry.png")
+    if os.path.isdir("/output") and os.access("/output", os.W_OK):
+        return os.path.join("/output", "entry.png")
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "entry.png")
 
 if __name__ == "__main__":
     build()
